@@ -6,7 +6,6 @@ export const getCategoriesAction = async () => {
         const response = await expenseApi.get<{ data: Category[] }>('/categories')
         const categories = response.data.data || []
 
-        console.log('categories', categories)
         return {
             ok: true,
             data: categories,

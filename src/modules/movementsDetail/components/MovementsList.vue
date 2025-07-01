@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { onMounted, watch, computed } from 'vue'
 import CardItem from '@/components/ui/CardItem.vue'
-import { getExpensesAction } from '../actions/get-expenses.action'
-import type { Expense } from '../interfaces/expense.interface'
 import SpinnerLoading from '@/components/ui/SpinnerLoading.vue'
 import { useExpenseFilters } from '@/composables/useExpenseFilters'
+import { useExpensesStore } from '../store/expenses.store'
+
+const expensesStore = useExpensesStore()
 
 const props = defineProps<{
     nameFilter?: string
@@ -13,27 +14,13 @@ const props = defineProps<{
     date?: string
 }>()
 
-const expenses = ref<Expense[]>([])
-const loading = ref(true)
-const error = ref(false)
+// Usar directamente el store
+const expenses = computed(() => expensesStore.expenses)
+const loading = computed(() => expensesStore.loading)
+const error = computed(() => expensesStore.error)
 
 const loadExpenses = async () => {
-    try {
-        loading.value = true
-        const response = await getExpensesAction()
-        console.log('response getExpensesAction', response)
-        if (response.ok && Array.isArray(response.data)) {
-            expenses.value = response.data
-        } else {
-            expenses.value = []
-        }
-    } catch (err) {
-        console.error('Error al cargar los gastos:', err)
-        expenses.value = []
-        error.value = true
-    } finally {
-        loading.value = false
-    }
+    await expensesStore.getExpenses()
 }
 
 const { filteredExpenses } = useExpenseFilters(expenses, {
@@ -49,8 +36,8 @@ watch(
     { deep: true },
 )
 
-onMounted(() => {
-    loadExpenses()
+onMounted(async () => {
+    await loadExpenses()
 })
 </script>
 

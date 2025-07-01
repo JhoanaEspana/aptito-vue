@@ -2,11 +2,14 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { AuthStatus, type User } from '../interfaces'
 import { loginAction, checkAuthAction } from '../actions'
+import { getUsersAction } from '../actions/get-users.action'
 
 export const useAuthStore = defineStore('auth', () => {
     const authStatus = ref<AuthStatus>(AuthStatus.Checking)
     const user = ref<User | undefined>()
     const token = ref<string | undefined>(localStorage.getItem('token') || undefined)
+    const users = ref<User[]>([])
+    const error = ref<string | null>(null)
 
     const checkAuth = async () => {
         try {
@@ -42,7 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
                 localStorage.setItem('token', loginResp.token)
             }
             if (loginResp.user?.id) {
-                localStorage.setItem('userId', loginResp.user.id)
+                localStorage.setItem('userId', loginResp.user.id.toString())
             }
             if (loginResp.user?.name) {
                 localStorage.setItem('userName', loginResp.user.name)
@@ -70,6 +73,20 @@ export const useAuthStore = defineStore('auth', () => {
         return false
     }
 
+    const getUsers = async () => {
+        try {
+            const response = await getUsersAction()
+
+            if (response.ok) {
+                users.value = response.data
+            } else {
+                error.value = 'Error al cargar los usuarios'
+            }
+        } catch (error) {
+            console.error('Error fetching users:', error)
+        }
+    }
+
     return {
         user,
         token,
@@ -84,5 +101,12 @@ export const useAuthStore = defineStore('auth', () => {
         //Actions
         login,
         checkAuth,
+
+        //Getters
+        users,
+        error,
+
+        //Actions
+        getUsers,
     }
 })

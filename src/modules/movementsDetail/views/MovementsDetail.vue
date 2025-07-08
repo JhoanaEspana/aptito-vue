@@ -6,11 +6,10 @@ import IcoEdit from '@/components/ui/icons/IcoEdit.vue'
 import CustomCard from '@/components/CustomCard.vue'
 import MovementsList from '../components/MovementsList.vue'
 import SpinnerLoading from '@/components/ui/SpinnerLoading.vue'
-import { getCategoriesAction } from '../../categories/actions/get-categories.action'
-import type { Category } from '../interfaces/category.interface'
 import { ref, onMounted } from 'vue'
+import { useCategoriesStore } from '@/modules/categories/store/categories.store'
 
-const categories = ref<Category[]>([])
+const categoriesStore = useCategoriesStore()
 
 // Variables reactivas para los filtros
 const nameFilter = ref('')
@@ -19,15 +18,9 @@ const dateFilter = ref('')
 
 const loadCategories = async () => {
     try {
-        const response = await getCategoriesAction()
-        if (response.ok) {
-            categories.value = response.data
-        } else {
-            categories.value = []
-        }
+        await categoriesStore.getCategories()
     } catch (error) {
         console.error('Error al cargar las categorías:', error)
-        categories.value = []
     }
 }
 
@@ -37,8 +30,8 @@ const clearFilters = () => {
     dateFilter.value = ''
 }
 
-onMounted(() => {
-    loadCategories()
+onMounted(async () => {
+    await loadCategories()
 })
 </script>
 
@@ -85,7 +78,7 @@ onMounted(() => {
                             Selecciona la categoría
                         </option>
                         <option
-                            v-for="category in categories"
+                            v-for="category in categoriesStore.categories"
                             :key="category.id"
                             :value="category.id.toString()"
                         >

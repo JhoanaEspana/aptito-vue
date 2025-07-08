@@ -82,17 +82,14 @@ onMounted(async () => {
     await loadUsers()
 })
 
-// Función para obtener gastos de un usuario específico
 const getExpensesByUser = (userId: number) => {
     return expenses.value.filter((expense) => expense.user_id === userId)
 }
 
-// Función para obtener contribuciones de un usuario específico
 const getContributionsByUser = (userId: number) => {
     return contributions.value.filter((contribution) => contribution.user_id === userId)
 }
 
-// Función para generar avatar aleatorio basado en el ID del usuario
 const getUserAvatar = (userId: number) => {
     const avatars = [
         'https://randomuser.me/api/portraits/women/44.jpg',
@@ -104,10 +101,6 @@ const getUserAvatar = (userId: number) => {
     ]
     return avatars[userId % avatars.length]
 }
-
-console.log('expensesssss', expenses.value)
-console.log('contributions', contributions.value)
-console.log('users', users.value)
 </script>
 
 <template>

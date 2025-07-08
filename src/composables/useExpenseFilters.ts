@@ -12,7 +12,6 @@ export function useExpenseFilters(expenses: Ref<Expense[]>, filters: ExpenseFilt
     const filteredExpenses = computed(() => {
         let filtered = expenses.value
 
-        // Filtro por nombre/descripción
         if (filters.nameFilter?.value && filters.nameFilter.value.trim() !== '') {
             const searchTerm = filters.nameFilter.value.toLowerCase().trim()
             filtered = filtered.filter((expense) =>

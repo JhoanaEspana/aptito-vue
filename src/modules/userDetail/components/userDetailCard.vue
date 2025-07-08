@@ -9,9 +9,13 @@ const props = defineProps<{
     contributions: Contribution[] | undefined
 }>()
 
-console.log('Props:', props)
+console.log('Props:', props.contributions)
 
 const userName = computed(() => props.user?.name || 'Usuario no disponible')
+
+const description = computed(
+    () => props.contributions?.[0]?.description || 'Descripción no disponible',
+)
 
 const totalContributions = computed(
     () =>
@@ -32,7 +36,7 @@ const totalContributions = computed(
             <div class="flex items-center gap-2">
                 <IcoAport />
                 <div>
-                    <p class="caption text-[#8CAFFF]">Aporte</p>
+                    <p class="caption text-[#8CAFFF]">{{ description }}</p>
                     <p class="body-text text-[#8CAFFF]">
                         {{
                             totalContributions.toLocaleString('es-CO', {

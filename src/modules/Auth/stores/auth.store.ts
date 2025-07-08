@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { AuthStatus, type User } from '../interfaces'
 import { loginAction, checkAuthAction } from '../actions'
 import { getUsersAction } from '../actions/get-users.action'
+import { getUserAction } from '../actions/get-user.action'
 
 export const useAuthStore = defineStore('auth', () => {
     const authStatus = ref<AuthStatus>(AuthStatus.Checking)
@@ -10,6 +11,8 @@ export const useAuthStore = defineStore('auth', () => {
     const token = ref<string | undefined>(localStorage.getItem('token') || undefined)
     const users = ref<User[]>([])
     const error = ref<string | null>(null)
+    const userLogged = ref<User | undefined>()
+    const loadingUser = ref(false)
 
     const checkAuth = async () => {
         try {
@@ -87,6 +90,23 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    const getUser = async () => {
+        try {
+            loadingUser.value = true
+            const response = await getUserAction()
+
+            if (response.ok && response.data) {
+                userLogged.value = response.data
+            } else {
+                error.value = 'Error al cargar el usuario'
+            }
+        } catch (error) {
+            console.error('Error fetching user:', error)
+        } finally {
+            loadingUser.value = false
+        }
+    }
+
     return {
         user,
         token,
@@ -105,8 +125,11 @@ export const useAuthStore = defineStore('auth', () => {
         //Getters
         users,
         error,
+        userLogged,
+        loadingUser,
 
         //Actions
         getUsers,
+        getUser,
     }
 })

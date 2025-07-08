@@ -6,6 +6,40 @@ import CustomButton from '@/components/ui/CustomButton.vue'
 import IcoEdit from '@/components/ui/icons/IcoEdit.vue'
 import CustomCard from '@/components/CustomCard.vue'
 import IcoArrowCircle from '@/components/ui/icons/IcoArrowCircle.vue'
+import SpinnerLoading from '@/components/ui/SpinnerLoading.vue'
+import { useAuthStore } from '@/modules/Auth/stores/auth.store'
+import { computed, onMounted } from 'vue'
+import { useContrubutionsStore } from '../store/contributions.store'
+
+const authStore = useAuthStore()
+const contributionsStore = useContrubutionsStore()
+
+const contributions = computed(() => contributionsStore.contributions)
+
+const loadUser = async () => {
+    try {
+        await authStore.getUser()
+    } catch (error) {
+        console.error('Error al cargar el usuario:', error)
+    }
+}
+
+const loadContributions = async () => {
+    try {
+        await contributionsStore.getContribution()
+    } catch (error) {
+        console.error('Error al cargar las contribuciones:', error)
+    }
+}
+
+const getContributionsByUser = (userId: number) => {
+    return contributions.value.filter((contribution) => contribution.user.id === userId)
+}
+
+onMounted(async () => {
+    await loadUser()
+    await loadContributions()
+})
 </script>
 
 <template>
@@ -14,7 +48,16 @@ import IcoArrowCircle from '@/components/ui/icons/IcoArrowCircle.vue'
             <IcoAddItem />
         </template>
     </CustomTitle>
-    <UserDetailCard />
+
+    <div v-if="authStore.loadingUser" class="flex justify-center mt-8">
+        <SpinnerLoading text="Cargando usuario..." color="#ff6767" />
+    </div>
+
+    <UserDetailCard
+        v-else
+        :user="authStore.userLogged"
+        :contributions="getContributionsByUser(authStore.userLogged?.id || 0)"
+    />
     <CustomCard class="flex flex-col mt-8">
         <div>
             <CustomButton outlined>
